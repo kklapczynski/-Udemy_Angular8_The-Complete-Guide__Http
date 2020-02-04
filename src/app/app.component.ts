@@ -12,6 +12,7 @@ import { PostsService } from './posts.service';
 export class AppComponent implements OnInit {
   loadedPosts = [];
   isFetching = false;
+  error = null;
 
   constructor(private postService: PostsService) {}
 
@@ -28,11 +29,19 @@ export class AppComponent implements OnInit {
     this.postService.fetchPosts().subscribe( (posts: Post[]) => {
         this.isFetching = false;
         this.loadedPosts = posts;
-    });
+    },
+    error => {
+      this.error = error.message;
+      console.log(error);
+    }
+    );
   }
 
   onClearPosts() {
     // Send Http request
+    this.postService.clearPosts().subscribe( () => {  // here we just care that delete succeeds - don't do anything with response
+      this.loadedPosts = [];
+    });
   }
 
   

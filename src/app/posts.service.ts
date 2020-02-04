@@ -36,4 +36,9 @@ export class PostsService {
       }));
       
   }
+
+  clearPosts() {
+    return this.http.delete('https://ng-udemy-complete-guide.firebaseio.com/posts.json');
+      
+  }
 }
