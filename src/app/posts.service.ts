@@ -1,8 +1,8 @@
 import { Injectable } from '@angular/core';
 import { Post } from './post.model';
 import { HttpClient } from '@angular/common/http';
-import { map } from 'rxjs/operators';
-import { Subject } from 'rxjs';
+import { map, catchError } from 'rxjs/operators';
+import { Subject, throwError } from 'rxjs';
 
 @Injectable({
   providedIn: 'root'
@@ -32,15 +32,20 @@ export class PostsService {
   fetchPosts() {
     
     return this.http.get<{ [key: string]: Post }>('https://ng-udemy-complete-guide.firebaseio.com/posts.json')     // http.get is generic method, so we can pass type of returned response as a body - this is optional, but recommended
-      .pipe(map( (postsObject) => {  
-        console.log(postsObject);                                                                     // thanks to above "postObject" type is known - was attached to "http.get" method
-        const postsArray: Post[] = [];
-        for ( const key in postsObject) {
-          if(postsObject.hasOwnProperty(key))
-            postsArray.push({...postsObject[key], id: key})
-        }
-        return postsArray;
-      }));
+      .pipe(
+        map( (postsObject) => {  
+          const postsArray: Post[] = [];
+          for ( const key in postsObject) {
+            if(postsObject.hasOwnProperty(key))
+              postsArray.push({...postsObject[key], id: key})
+          }
+          return postsArray;
+        }),
+        catchError( errorResponse => {
+          // some generic error handling in the backgound like sending to analytics server, logging server etc.
+          return throwError(errorResponse);
+        })
+      );
       
   }
 
